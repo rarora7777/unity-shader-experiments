@@ -9,17 +9,20 @@ public class StrokeGeometry : MonoBehaviour
 
     MeshFilter mf;
     Material mat;
-    Vector3[] normals;
     
     public Vector3[] verts;
     public enum StrokeType { Plane = 0, Sphere = 1};
     public StrokeType strokeType;
     public float strokeWidth = 0.02f;
+    public bool drawConnections = false;
+    public float circleRadius = 1.0f;
+    public Vector3 circleOrigin = new Vector3(1.0f, 1.0f, 2.0f);
 
     private struct ShaderPropertyIDs
     {
         public int _StrokeType;
         public int _StrokeWidth;
+        public int _DrawConn;
     }
     private ShaderPropertyIDs shaderPropIds;
 
@@ -34,30 +37,20 @@ public class StrokeGeometry : MonoBehaviour
         shaderPropIds = new ShaderPropertyIDs()
         {
             _StrokeType = Shader.PropertyToID("_StrokeType"),
-            _StrokeWidth = Shader.PropertyToID("_StrokeWidth")
+            _StrokeWidth = Shader.PropertyToID("_StrokeWidth"),
+            _DrawConn = Shader.PropertyToID("_DrawConn"),
         };
 
         mat.SetInt(shaderPropIds._StrokeType, (int)strokeType);
         mat.SetFloat(shaderPropIds._StrokeWidth, strokeWidth);
-
-        int n = 100;
-        float fn = n;
-        verts = new Vector3[n+1];
-        Vector3 origin = new Vector3(2, 2, 0);
-        float radius = 0.5f;
-        for (int i=0; i<verts.Length; ++i)
-        {
-            
-            verts[i] = origin + radius * new Vector3(
-                Mathf.Cos(2.0f*Mathf.PI * i / fn), 
-                0.0f, 
-                Mathf.Sin(2.0f*Mathf.PI * i / fn));
-        }
+        mat.SetInt(shaderPropIds._DrawConn, drawConnections ? 1 : 0);
     }
 
     // Update is called once per frame
     void Update()
     {
+        CreateVertices(circleOrigin, circleRadius);
+
         var mesh = mf.sharedMesh;
 
         mesh.vertices = verts;
@@ -72,5 +65,21 @@ public class StrokeGeometry : MonoBehaviour
 
         mat.SetInt(shaderPropIds._StrokeType, (int)strokeType);
         mat.SetFloat(shaderPropIds._StrokeWidth, strokeWidth);
+        mat.SetInt(shaderPropIds._DrawConn, drawConnections ? 1 : 0);
+    }
+
+    void CreateVertices(Vector3 origin, float radius)
+    {
+        int n = 100;
+        float fn = n;
+        verts = new Vector3[n + 1];
+        for (int i = 0; i < verts.Length; ++i)
+        {
+
+            verts[i] = origin + radius * new Vector3(
+                Mathf.Cos(2.0f * Mathf.PI * i / fn),
+                2.0f,
+                Mathf.Sin(2.0f * Mathf.PI * i / fn));
+        }
     }
 }
