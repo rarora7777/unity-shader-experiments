@@ -168,8 +168,7 @@
 			float2 coeffb[10];
 			float2 seed;
 			float num1, num2, num3, num4;
-			int i;
-			for (i = 0; i < k; ++i)
+			for (int i = 0; i < k; ++i)
 			{
 				coeffa[i] = float2(0, 0);
 				coeffb[i] = float2(0, 0);
